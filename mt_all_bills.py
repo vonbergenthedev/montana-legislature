@@ -9,6 +9,7 @@ def get_bills(bill_data_dict):
         bill_id = bill['draft']['id']
         draft_number = bill['draft']['draftNumber']
         short_title = bill['draft']['shortTitle']
+        ##TODO Capture the billNumber
 
         all_bills_dict['bills'].update({
             idx: {

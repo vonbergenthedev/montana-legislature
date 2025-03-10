@@ -3,23 +3,34 @@ import requests
 
 from dotenv import load_dotenv
 
+from mt_legislators import MTLegislators
+
 load_dotenv()
 
 MT_BILLS_LAW_ENDPOINT = os.environ.get('MT_BILLS_LAW_ENDPOINT')
 MT_BILLS_VOTES_ENDPOINT = os.environ.get('MT_BILLS_VOTES_ENDPOINT')
+MT_BILLS_LINK = os.environ.get('MT_BILLS_LINK')
+
+mt_l = MTLegislators()
+mt_legislators_list = mt_l.get_legislator_information()
 
 
 def get_bill_votes(input_bill_vote_data_dict, input_bill_number):
     if input_bill_vote_data_dict:
         legislator_votes = input_bill_vote_data_dict[0]['legislatorVotes']
         bill_draft_number = input_bill_vote_data_dict[0]['bill']['draft']['draftNumber']
-        vote_info_dict = {'bill_name': input_bill_number,
-                          f'bill_votes': {},
-                          'link': f'{MT_BILLS_LAW_ENDPOINT}{bill_draft_number}'
-                          }
+        vote_info_dict = {
+            'bill_name': input_bill_number,
+            f'bill_votes': {},
+            'link': f'{MT_BILLS_LINK}{bill_draft_number}'
+        }
 
         for vote in legislator_votes:
-            vote_info_dict[f'bill_votes'].update({str(vote['legislatorId']): vote['voteType']})
+            for legislator in mt_legislators_list:
+                if str(vote['legislatorId']) == str(legislator['id']):
+                    vote_info_dict[f'bill_votes'].update({
+                        f'{legislator['firstName']} {legislator['lastName']}': vote['voteType']
+                    })
 
         return vote_info_dict
 
@@ -36,7 +47,7 @@ class MTBill:
             self.vote_info_dict = {
                 'bill_name': input_bill_number,
                 'bill_votes': {},
-                'link': f'{MT_BILLS_LAW_ENDPOINT}{input_draft_number}'
+                'link': f'{MT_BILLS_LINK}{input_draft_number}'
             }
         else:
             self.vote_info_dict = get_bill_votes(bill_vote_data_dict, input_bill_number)

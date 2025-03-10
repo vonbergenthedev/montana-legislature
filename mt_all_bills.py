@@ -1,5 +1,11 @@
-import json
+import os
 import requests
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MT_ALL_BILLS_ENDPOINT = os.environ.get('MT_ALL_BILLS_ENDPOINT')
 
 
 def get_bills(bill_data_dict):
@@ -7,14 +13,16 @@ def get_bills(bill_data_dict):
 
     for idx, bill in enumerate(bill_data_dict['content']):
         bill_id = bill['draft']['id']
-        draft_number = bill['draft']['draftNumber']
+        bill_number = bill['billNumber']
+        bill_code = bill['billType']['code']
+        bill_draft_number = bill['draft']['draftNumber']
         short_title = bill['draft']['shortTitle']
-        ##TODO Capture the billNumber
 
         all_bills_dict['bills'].update({
             idx: {
                 'bill_id': bill_id,
-                'draft_number': draft_number,
+                'bill_number': f'{bill_code}{bill_number}',
+                'bill_draft_number': bill_draft_number,
                 'short_title': short_title
             }
         })
@@ -25,12 +33,6 @@ def get_bills(bill_data_dict):
 class MTAllBills:
 
     def __init__(self, num_of_bills):
-        all_bills_parameters = {"sessionIds": [2]}
-        response = requests.post(
-            f'https://api.legmt.gov/bills/v1/bills/search?includeCounts=false&sort=billType.sortOrder,desc&sort=billNumber,asc&sort=draft.draftNumber,asc&limit={num_of_bills}&offset=0',
-            json=all_bills_parameters)
+        response = requests.post(f'{MT_ALL_BILLS_ENDPOINT}{num_of_bills}', json={"sessionIds": [2]})
         data = response.json()
         self.all_bills_dict = get_bills(data)
-
-        # with open('./all_bills/all_bills.json', 'w') as file:
-        #     file.write(json.dumps(self.all_bills_dict))

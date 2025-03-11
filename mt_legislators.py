@@ -15,5 +15,5 @@ class MTLegislators:
         self.legislator_data = response.json()
 
     def get_legislator_information(self):
-        return [{'id': legislator['id'], 'firstName': legislator['firstName'], 'lastName': legislator['lastName']} for
+        return [{'id': legislator['id'], 'firstName': legislator['firstName'], 'lastName': legislator['lastName'],} for
                 legislator in self.legislator_data]

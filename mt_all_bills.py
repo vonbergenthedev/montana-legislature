@@ -16,14 +16,14 @@ def get_bills(bill_data_dict):
         bill_number = bill['billNumber']
         bill_code = bill['billType']['code']
         bill_draft_number = bill['draft']['draftNumber']
-        short_title = bill['draft']['shortTitle']
+        bill_title = bill['draft']['shortTitle']
 
         all_bills_dict['bills'].update({
             idx: {
                 'bill_id': bill_id,
+                'bill_title': bill_title,
                 'bill_number': f'{bill_code}{bill_number}',
                 'bill_draft_number': bill_draft_number,
-                'short_title': short_title
             }
         })
 

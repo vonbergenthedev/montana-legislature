@@ -25,6 +25,7 @@ class SheetyAPI:
         body = {
             'allBill': {
                 'billName': mt_bill.vote_info_dict['bill_name'],
+                'billTitle': mt_bill.vote_info_dict['bill_title'],
                 'billVotes': str(mt_bill.vote_info_dict['bill_votes']),
                 'link': mt_bill.vote_info_dict['link'],
             }

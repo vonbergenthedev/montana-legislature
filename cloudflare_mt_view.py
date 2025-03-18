@@ -5,10 +5,13 @@ import sqlite3
 
 from dotenv import load_dotenv
 from cloudflare import Cloudflare
+from sqlalchemy import create_engine, insert, text
+from sqlalchemy.exc import OperationalError
 
 load_dotenv()
 
 client = Cloudflare()
+
 
 class CLOUDFLAREMT:
 
@@ -42,14 +45,28 @@ class CLOUDFLAREMT:
 
         return 'sql/montana-legislature-test.sql'
 
+
 cmt = CLOUDFLAREMT()
-sql_file_location = cmt.sql_file
-print(sql_file_location)
 
 sqliteConnection = sqlite3.connect('sql/montana-legislature-test.db')
 cursor = sqliteConnection.cursor()
 
-with open(sql_file_location, 'r') as file:
-    lines = file.readlines()
-    for line in lines:
-        print(f'{line}\n\n')
+
+with open('sql/montana-legislature-test.sql', 'r') as file:
+    for file_line in file:
+        if 'PRAGMA' not in file_line:
+            try:
+                cursor.execute(file_line[:-2])
+                sqliteConnection.commit()
+            except sqlite3.IntegrityError:
+                print('Table Exists!')
+                break
+            except sqlite3.OperationalError:
+                print('Table Exists!')
+                break
+    sqliteConnection.close()
+
+engine = create_engine("sqlite+pysqlite:///sql/montana-legislature-test.db", echo=True)
+with engine.connect() as conn:
+    result = conn.execute(text("select 'all_bills'"))
+    print(result.all())
